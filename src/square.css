@@ -1,0 +1,24 @@
+/*
+ * reference: https://codepen.io/gaearon/pen/LyyXgK?editors=0010
+ */
+.square {
+  background: #000;
+  border: none;
+  float: left;
+  height: 16px;
+  margin-right: -1px;
+  margin-top: -1px;
+  width: 16px;
+}
+
+.square:focus {
+  outline: none;
+}
+
+.snake {
+	background: #6CBB3C;
+}
+
+.food {
+	background: #A91B0D;
+}
