@@ -10,31 +10,14 @@ import './board.css';
  * reference: https://reactjs.org/#a-stateful-component
  */
 class Board extends React.Component {
-	constructor(props) {
-		super(props);
-		this.state = {
-			row: 20,
-			col: 30
-		};
-	}
-
-	redraw() {
-		
-	}
-
-	reset() {
-		this.setState({
-
-		});
-	}
 
 	render() {
 		let rs = [];
-		for (let i = 0; i < this.state.row; i++) {
+		for (let i = 0; i < this.props.row; i++) {
 			let r = [];
-			for (let j = 0; j < this.state.col; j++) {
-				const t = this.props.typeOf([i, j]);
-				r.push(<Square type={t} x={i} y={j}/>);
+			for (let j = 0; j < this.props.col; j++) {
+				const t = this.props.typeOf([j, i]);
+				r.push(<Square type={t} x={j} y={i}/>);
 			}
 			rs.push(<div className="board-row">{r}</div>);
 		}

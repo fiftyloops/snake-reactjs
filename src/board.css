@@ -1,3 +1,6 @@
+/*
+ * reference: https://codepen.io/gaearon/pen/LyyXgK?editors=0010
+ */
 .board-row:after {
 	clear: both;
 	content: "";
