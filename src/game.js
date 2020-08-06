@@ -36,11 +36,15 @@ class Game extends React.Component {
 				this.redrawSnake();
 				// redraw food
 			}
-		}, 100);
+		}, 1000);
 	}
 
 	componentDidUpdate(prevProps, prevState) {
-		if (!this.state.snake.equals(prevState.snake)) {
+		const snake = this.state.snake;
+		const food  = this.state.food;
+
+		if (!snake.equals(prevState.snake)
+				&& this.isColliding(food, snake[0])) {
 			this.drawFood();
 		}
 	}
@@ -54,11 +58,11 @@ class Game extends React.Component {
 		// press spacebar to start
 		if (event.key === " ") {
 			this.setState({
-				running: true
+				running: true,
+				dir: "a" // left (default)
 			});
-
-		} else if (["w", "a", "s", "d"].includes(event.key)) {
-
+		} else if (this.state.running
+				&& ["w", "a", "s", "d"].includes(event.key)) {
 			this.setState({
 				dir: event.key
 			});
@@ -99,7 +103,36 @@ class Game extends React.Component {
 	}
 
 	redrawSnake() {
+		if (!this.state.dir) {
+			return;
+		}
 
+		let snake = this.state.snake.slice();
+		snake.pop(); // remove snake tail
+
+		const x = snake[0][0];
+		const y = snake[0][1];
+
+		// math
+		let square;
+		switch (this.state.dir) {
+			case "w":
+				square = [x, y - 1];
+				break;
+			case "a":
+				square = [x - 1, y];
+				break;
+			case "s":
+				square = [x, y + 1];
+				break;
+			case "d":
+				square = [x + 1, y];
+				break;
+		}
+		snake.unshift(square);
+		this.setState({
+			snake: snake
+		});
 	}
 
 	drawFood() {
