@@ -3,10 +3,6 @@ import Square from './square';
 import './board.css';
 
 /**
- * props:
- *
- * 
- *
  * reference: https://reactjs.org/#a-stateful-component
  */
 class Board extends React.Component {

@@ -6,9 +6,6 @@ class Game extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			// true if game is running
-			running: false,
-
 			// board dimensions
 			height: 20,
 			width:  30,
@@ -29,22 +26,21 @@ class Game extends React.Component {
 		this.initSnake();
 		// init food
 		
-		// initialize timer
+		// init timer
 		this.interval = setInterval(() => {
 			// redraw only if game is running
-			if (this.state.running) {
+			if (this.state.dir) {
 				this.redrawSnake();
 				// redraw food
 			}
-		}, 1000);
+		}, 300);
 	}
 
 	componentDidUpdate(prevProps, prevState) {
 		const snake = this.state.snake;
-		const food  = this.state.food;
+		const dir   = this.state.dir;
 
-		if (!snake.equals(prevState.snake)
-				&& this.isColliding(food, snake[0])) {
+		if (!snake.equals(prevState.snake) || dir !== prevState.dir) {
 			this.drawFood();
 		}
 	}
@@ -56,12 +52,11 @@ class Game extends React.Component {
 
 	handleKeyPress = (event) => {
 		// press spacebar to start
-		if (event.key === " ") {
+		if (!this.state.dir && event.key === " ") {
 			this.setState({
-				running: true,
 				dir: "a" // left (default)
 			});
-		} else if (this.state.running
+		} else if (this.state.dir
 				&& ["w", "a", "s", "d"].includes(event.key)) {
 			this.setState({
 				dir: event.key
@@ -72,14 +67,18 @@ class Game extends React.Component {
 	// return the type of the given square
 	typeOf = ([x, y]) => {
 		const food = this.state.food;
-		if (x === food[0] && y === food[1]) {
+		if ([x, y].equals(food)) {
 			return "food";
 		}
 
 		const snake = this.state.snake;
 		for (let i = 0; i < snake.length; i++) {
-			if (x === snake[i][0] && y === snake[i][1]) {
-				return "snake";
+			if ([x, y].equals(snake[i])) {
+				if (i === 0) {
+					return "snake head";
+				} else {
+					return "snake tail";
+				}
 			}
 		}
 
@@ -107,35 +106,50 @@ class Game extends React.Component {
 			return;
 		}
 
-		let snake = this.state.snake.slice();
-		snake.pop(); // remove snake tail
-
-		const x = snake[0][0];
-		const y = snake[0][1];
-
-		// math
-		let square;
-		switch (this.state.dir) {
-			case "w":
-				square = [x, y - 1];
-				break;
-			case "a":
-				square = [x - 1, y];
-				break;
-			case "s":
-				square = [x, y + 1];
-				break;
-			case "d":
-				square = [x + 1, y];
-				break;
+		let snake = this.state.snake.slice(); // create a copy of snake
+		if (!this.next().equals(this.state.food)) {
+			snake.pop(); // remove tail
 		}
-		snake.unshift(square);
+		snake.unshift(this.next()); // add a new head
+
 		this.setState({
 			snake: snake
 		});
 	}
 
+	// killSnake() {
+	// 	if () {
+
+	// 		this.setState({
+	// 			dir: ""
+	// 		});
+	// 	}
+	// }
+
+	next() {
+		const x = this.state.snake[0][0];
+		const y = this.state.snake[0][1];
+
+		switch (this.state.dir) {
+			case "w":
+				return [x, y - 1];
+			case "a":
+				return [x - 1, y];
+			case "s":
+				return [x, y + 1];
+			case "d":
+				return [x + 1, y];
+			default:
+				return [x, y];
+		}
+	}
+
 	drawFood() {
+		if (this.state.dir
+				&& !this.state.snake[0].equals(this.state.food)) {
+			return;
+		}
+
 		// a random square on the board
 		let x = Math.floor(Math.random() * this.state.width);
 		let y = Math.floor(Math.random() * this.state.height);
@@ -153,7 +167,7 @@ class Game extends React.Component {
 
 	isColliding(square, arr) {
 		for (let i = 0; i < arr.length; i++) {
-			if (square[0] === arr[i][0] && square[1] === arr[i][1]) {
+			if (square.equals(arr[i])) {
 				return true;
 			}
 		}

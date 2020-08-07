@@ -2,7 +2,7 @@
  * reference: https://codepen.io/gaearon/pen/LyyXgK?editors=0010
  */
 .square {
-  background: #000;
+  background: black;
   border: none;
   float: left;
   height: 16px;
@@ -17,6 +17,10 @@
 
 .snake {
 	background: #6CBB3C;
+}
+
+.head {
+  background: #4AA02C;
 }
 
 .food {
