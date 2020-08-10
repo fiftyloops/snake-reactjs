@@ -51,13 +51,22 @@ class Game extends React.Component {
   	}
 
 	handleKeyPress = (event) => {
-		// press spacebar to start
+		// start game
 		if (!this.state.dir && event.key === " ") {
 			this.setState({
 				dir: "a" // left (default)
 			});
+		// reset game
+		} else if (this.state.dir === "x" && event.key === " ") {
+			this.initSnake();
+			this.setState({
+				dir: ""
+			});
 		} else if (this.state.dir
 				&& ["w", "a", "s", "d"].includes(event.key)) {
+			if (this.state.dir === "x") {
+				return;
+			}
 			this.setState({
 				dir: event.key
 			});
@@ -102,29 +111,41 @@ class Game extends React.Component {
 	}
 
 	redrawSnake() {
-		if (!this.state.dir) {
+		if (!this.state.dir || this.state.dir === "x") {
 			return;
 		}
 
-		let snake = this.state.snake.slice(); // create a copy of snake
-		if (!this.next().equals(this.state.food)) {
+		// create a copy of snake
+		const snake = this.state.snake.slice();
+		const next  = this.next();
+
+		// ==============================
+		//           snake.die
+		// ==============================
+
+		// snake is moving off the screen
+		if (next[0] < 0 || next[0] >= this.state.width
+				|| next[1] < 0 || next[1] >= this.state.height
+				// snake is moving into itself
+				|| this.isColliding(next, snake.slice(1))) {
+			this.setState({
+				dir: "x"
+			});
+		}
+
+		// ==============================
+		//           snake.eat
+		// ==============================
+
+		if (!next.equals(this.state.food)) {
 			snake.pop(); // remove tail
 		}
-		snake.unshift(this.next()); // add a new head
+		snake.unshift(next); // add a new head
 
 		this.setState({
 			snake: snake
 		});
 	}
-
-	// killSnake() {
-	// 	if () {
-
-	// 		this.setState({
-	// 			dir: ""
-	// 		});
-	// 	}
-	// }
 
 	next() {
 		const x = this.state.snake[0][0];
@@ -145,19 +166,26 @@ class Game extends React.Component {
 	}
 
 	drawFood() {
-		if (this.state.dir
-				&& !this.state.snake[0].equals(this.state.food)) {
+		const snake  = this.state.snake;
+		const food   = this.state.food;
+		const width  = this.state.width;
+		const height = this.state.height;
+
+		if (this.state.dir // snake is not eating the food
+				&& !snake[0].equals(food)) {
+			return;
+		} else if (this.state.dir === "x") { // snake has died (rip)
 			return;
 		}
 
 		// a random square on the board
-		let x = Math.floor(Math.random() * this.state.width);
-		let y = Math.floor(Math.random() * this.state.height);
+		let x = Math.floor(Math.random() * width);
+		let y = Math.floor(Math.random() * height);
 
 		// find another square if it's part of the snake
-		while (this.isColliding([x, y], this.state.snake)) {
-			x = Math.floor(Math.random() * this.state.width);
-			y = Math.floor(Math.random() * this.state.height);
+		while (this.isColliding([x, y], snake)) {
+			x = Math.floor(Math.random() * width);
+			y = Math.floor(Math.random() * height);
 		}
 
 		this.setState({
